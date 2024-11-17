@@ -1,0 +1,39 @@
+name: CI Workflow
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Compose to file
+        uses: mobiledevops/secret-to-file-action@v1
+        with:
+          base64-encoded-secret: ${{ secrets.COMPOSE }}
+          filename: compose.yaml
+
+      - name: Replace image:... in compose.yaml with value of file latest_tag.txt
+        run: |
+          sed -i "s|image:.*|image: $(cat latest_tag.txt)|g" compose.yaml
+
+      - name: Deploy compose
+        uses: sulthonzh/docker-remote-deployment-action@v0.1.2-beta
+        with:
+          remote_docker_host: lestar@lestar.ddns.net
+          remote_docker_port: 2831
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
+          copy_stack_file: true
+          deploy_path: /home/lestar/containers/camoufox_fetch_ratio
+          stack_file_name: compose.yaml
+          keep_files: 5
+          args: up -d --remove-orphans
+          docker_registry_username: liamnou
+          docker_registry_password: ${{ secrets.DOCKERHUB_TOKEN }}

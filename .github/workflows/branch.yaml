@@ -1,0 +1,47 @@
+name: Branch CI Workflow
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  branch:
+    permissions:
+      # Give the default GITHUB_TOKEN write permission to commit and push for git-auto-commit-action
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: liamnou
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            liamnou/camoufox_fetch_ratio
+          tags: |
+            type=sha
+        env:
+          DOCKER_METADATA_SHORT_SHA_LENGTH: 6
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Write tag to file
+        run: echo "${{ steps.meta.outputs.tags }}" > latest_tag.txt
+
+      - uses: stefanzweifel/git-auto-commit-action@v5

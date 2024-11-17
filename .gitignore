@@ -1,0 +1,7 @@
+venv
+.env
+*.pyc
+*.pyo
+*.pyd
+compose.yaml
+*.base64
