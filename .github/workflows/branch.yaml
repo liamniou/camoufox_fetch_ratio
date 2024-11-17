@@ -40,6 +40,8 @@ jobs:
         with:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=liamnou/camoufox_fetch_ratio:cache
+          cache-to: type=registry,ref=liamnou/camoufox_fetch_ratio:cache,mode=max
 
       - name: Write tag to file
         run: echo "${{ steps.meta.outputs.tags }}" > latest_tag.txt
