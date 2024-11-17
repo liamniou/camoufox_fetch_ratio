@@ -1,1 +1,1 @@
-liamnou/camoufox_fetch_ratio:sha-4ccc1a9
+liamnou/camoufox_fetch_ratio:sha-e86bc6b
