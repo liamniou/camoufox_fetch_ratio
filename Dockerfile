@@ -1,33 +1,23 @@
-# Use a base image with Python installed
-FROM python:3.9-slim-buster
+FROM python:3.9-slim-bookworm
 
-# Set working directory
+# System deps for camoufox / playwright
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        libgtk-3-0 libdbus-glib-1-2 libxt6 libasound2 \
+        libx11-xcb1 libxcomposite1 libxdamage1 libxrandr2 \
+        libgbm1 libpango-1.0-0 libcairo2 libatk1.0-0 \
+        libatk-bridge2.0-0 libxkbcommon0 libxshmfence1 \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    build-essential \
-    libpcap-dev \
-    libgtk-3-0 \
-    libasound2 \
-    libx11-xcb1 \
-    libxcb-xkb1 \
-    libxkbcommon-x11-0 \
-    libxcb-icccm4 \
-    libxcb-image0 \
-    libxcb-keysyms1 \
-    libxcb-randr0 \
-    libxcb-render-util0 \
-    libxcb-xinerama0 \
-    && rm -rf /var/lib/apt/lists/* && apt-get clean
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install 'camoufox[geoip]' requests prometheus-client --no-cache-dir
+# Install camoufox browser binary
+RUN python -c "import camoufox; camoufox.sync_api"  || true
+RUN python -m camoufox fetch --browserforge || true
 
-RUN python -m camoufox fetch
-
-RUN python -m camoufox --help
-
-COPY main.py ./
+COPY main.py .
 
 CMD ["python", "main.py"]
