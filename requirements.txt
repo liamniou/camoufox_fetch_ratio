@@ -1,4 +1,4 @@
 camoufox[geoip]==0.3.9
 playwright==1.48.0
-prometheus_client==0.21.0
+prometheus_client==0.26.0
 requests==2.32.3
