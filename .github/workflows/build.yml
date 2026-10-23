@@ -28,6 +28,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
           tags: |
+            type=raw,value={{date 'YYYY.M.D'}}.${{ github.run_number }},enable={{is_default_branch}}
             type=raw,value=latest
             type=sha,prefix=sha-,format=short
       - uses: docker/build-push-action@v6
