@@ -1,4 +1,4 @@
-FROM python:3.9-slim-bookworm
+FROM python:3.15-slim-bookworm
 
 # System deps for camoufox / playwright
 RUN apt-get update && \
